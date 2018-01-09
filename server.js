@@ -7,6 +7,7 @@ var cheerio = require("cheerio");
 var db = require("./models");
 
 var PORT = process.env.PORT || 8080;
+var MONGODB_URI = process.env.MONGODB_URI ||"mongodb://localHost/scraper"
 
 var app = express();
 
@@ -14,6 +15,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static("public"));
 
 mongoose.Promise = Promise;
+mongoose.connect(MONGODB_URI)
 mongoose.connect("mongodb://localHost/scraper", {
   useMongoClient: true
 });
