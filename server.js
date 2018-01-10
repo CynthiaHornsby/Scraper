@@ -16,9 +16,7 @@ app.use(express.static("public"));
 
 mongoose.Promise = Promise;
 mongoose.connect(MONGODB_URI)
-mongoose.connect("mongodb://localHost/scraper", {
-  useMongoClient: true
-});
+mongoose.connect("mongodb://localHost/scraper");
 
 app.get("/scrape", function(req, res) {
     
@@ -26,27 +24,35 @@ app.get("/scrape", function(req, res) {
     
     var $ = cheerio.load(html);
     
-    $("h2.story-heading").each(function(i, element) {
-        
+    $("article.theme-summary").each(function(i, element) {
+        if (i < 10 ) {
         var result = {};
         
-        result.title = $(element).text();
-        result.link = $(element).children().attr("href");
+        result.title = $(element).children("h2").text();
+        result.link = $(element).children().children().attr("href");
+        result.summary = $(element).children("p.summary").text();
         
-        console.log( result.title + result.link);
+        console.log(result.title + result.link);
+        console.log("Summary - " + result.summary);
+        
+        //console.log( result.title + result.link);
+        if (!result.link) {
+            //console.log("Link not found.");
+            //console.log(result.title);
+        }
         
         db.Article
         .create(result)
         .then(function(adArticle) {
+            //console.log(adArticle);
             
-            res.send("Scrape Complete");
         })
         .catch(function(err) {
-            res.json(err);
+            //console.log(err);
         });
-        
+        }
     });
-    
+   res.send("Scrape Complete"); 
 });
 });
 
